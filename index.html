@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temu-Note — Portail Établissement</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --surface3: #243048;
+    --border: #2a3a5c;
+    --accent: #3b82f6;
+    --accent2: #6366f1;
+    --accent3: #10b981;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== LOGIN ===== */
+  #loginScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, #1e3a8a44, transparent),
+                radial-gradient(ellipse 60% 40% at 90% 90%, #312e8122, transparent),
+                var(--bg);
+  }
+
+  .login-bg-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .login-card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 40px;
+    width: 420px;
+    box-shadow: 0 40px 80px #00000060, 0 0 0 1px #3b82f610;
+    animation: fadeUp .5s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .login-logo {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .login-logo .logo-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .logo-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .login-sub { color: var(--text3); font-size: 13px; margin-top: 4px; }
+
+  .field-group { margin-bottom: 16px; }
+  .field-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; letter-spacing: .5px; text-transform: uppercase; }
+
+  .field-group input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .field-group input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px #3b82f618;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity .2s, transform .1s;
+  }
+  .btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .login-error {
+    background: #ef444418;
+    border: 1px solid #ef444440;
+    border-radius: var(--radius-sm);
+    color: #fca5a5;
+    font-size: 13px;
+    padding: 10px 14px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ===== APP SHELL ===== */
+  #app { display: none; min-height: 100vh; }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .topbar-logo { display: flex; align-items: center; gap: 10px; }
+  .topbar-logo .logo-icon { width: 34px; height: 34px; border-radius: 8px; overflow:hidden; }
+  .topbar-logo .logo-text { font-size: 18px; font-weight: 800; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .topbar-user {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    padding: 6px 14px 6px 8px;
+    cursor: pointer;
+    transition: border-color .2s;
+  }
+  .topbar-user:hover { border-color: var(--accent); }
+
+  .user-avatar {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+  }
+
+  .user-info { line-height: 1.2; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--text3); }
+
+  .btn-logout {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text2);
+    padding: 7px 14px;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .btn-logout:hover { background: #ef444420; color: #fca5a5; border-color: #ef444440; }
+
+  /* ===== LAYOUT ===== */
+  .layout { display: flex; min-height: calc(100vh - 60px); }
+
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    flex-shrink: 0;
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 0 20px;
+    margin-bottom: 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    color: var(--text2);
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--surface2); color: var(--accent); border-left-color: var(--accent); }
+  .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  /* ===== MAIN ===== */
+  .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+
+  .page { display: none; animation: fadeIn .25s ease; }
+  .page.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .page-header { margin-bottom: 28px; }
+  .page-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .page-sub { font-size: 14px; color: var(--text3); }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ===== STATS GRID ===== */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-num { font-size: 32px; font-weight: 800; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-label { font-size: 12px; color: var(--text3); margin-top: 4px; font-weight: 500; }
+
+  /* ===== TABLE ===== */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .data-table th {
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--surface2);
+    color: var(--text3);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .data-table tr:hover td { background: var(--surface2); }
+
+  /* ===== BADGE ===== */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    gap: 4px;
+  }
+  .badge-principal { background: #fbbf2420; color: #fbbf24; border: 1px solid #fbbf2440; }
+  .badge-principal-adj { background: #f59e0b20; color: #f59e0b; border: 1px solid #f59e0b40; }
+  .badge-prof { background: #3b82f620; color: #3b82f6; border: 1px solid #3b82f640; }
+  .badge-cpe { background: #8b5cf620; color: #a78bfa; border: 1px solid #8b5cf640; }
+  .badge-eleve { background: #10b98120; color: #10b981; border: 1px solid #10b98140; }
+  .badge-surveillant { background: #06b6d420; color: #22d3ee; border: 1px solid #06b6d440; }
+  .badge-aesh { background: #ec489920; color: #f472b6; border: 1px solid #ec489940; }
+  .badge-admin { background: linear-gradient(90deg, #3b82f620, #6366f120); color: #a5b4fc; border: 1px solid #6366f140; }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity .2s, transform .1s;
+  }
+  .btn:hover { opacity: .85; transform: translateY(-1px); }
+  .btn-blue { background: var(--accent); color: #fff; }
+  .btn-green { background: var(--accent3); color: #fff; }
+  .btn-red { background: var(--danger); color: #fff; }
+  .btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--accent); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: #00000080;
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    display: none;
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn .2s ease; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 28px;
+    box-shadow: 0 40px 80px #000000a0;
+  }
+
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .modal-title { font-size: 17px; font-weight: 700; }
+  .modal-close { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text2); width: 30px; height: 30px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { color: var(--text); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-field { margin-bottom: 14px; }
+  .form-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; letter-spacing: .5px; text-transform: uppercase; }
+  .form-field input, .form-field select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .form-field input:focus, .form-field select:focus { border-color: var(--accent); }
+  .form-field select option { background: var(--surface); }
+
+  .generated-creds {
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-top: 16px;
+    display: none;
+  }
+  .generated-creds .cred-title { font-size: 12px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px; }
+  .cred-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .cred-row:last-child { border-bottom: none; }
+  .cred-label { font-size: 12px; color: var(--text3); font-weight: 500; }
+  .cred-value { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text); background: var(--surface3); padding: 3px 8px; border-radius: 4px; }
+
+  /* ===== PERMISSIONS ===== */
+  .perms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .perm-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .perm-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .perm-desc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  .perm-toggle {
+    display: flex;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .perm-btn {
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text3);
+    font-family: 'Sora', sans-serif;
+    transition: background .15s, color .15s;
+  }
+  .perm-btn.active-yes { background: #10b98130; color: #10b981; }
+  .perm-btn.active-neutre { background: #94a3b820; color: #94a3b8; }
+  .perm-btn.active-non { background: #ef444430; color: #ef4444; }
+
+  /* ===== TABS ===== */
+  .tabs { display: flex; gap: 2px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab {
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text2);
+    border: none;
+    background: transparent;
+    font-family: 'Sora', sans-serif;
+    transition: background .15s, color .15s;
+    white-space: nowrap;
+  }
+  .tab.active { background: var(--surface3); color: var(--text); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* ===== TOAST ===== */
+  .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 10px 30px #000000a0;
+    animation: slideIn .3s ease;
+    display: flex; align-items: center; gap: 8px;
+    max-width: 300px;
+  }
+  .toast-success { border-color: #10b98140; color: #10b981; }
+  .toast-error { border-color: #ef444440; color: #fca5a5; }
+
+  @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+  /* ===== EMPTY STATE ===== */
+  .empty { text-align: center; padding: 60px 20px; color: var(--text3); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-title { font-size: 15px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+
+  /* ===== PERMISSION PAGE CATEGORY TABS ===== */
+  .cat-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .cat-tab {
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: 'Sora', sans-serif;
+    transition: all .15s;
+  }
+  .cat-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  #notifBell { cursor: pointer; font-size: 20px; padding: 6px; border-radius: 8px; transition: background .15s; }
+  #notifBell:hover { background: var(--surface2); }
+</style>
+
+<!-- SVG butterfly logo (hidden template) -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="butterfly-logo" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="50" fill="#2a9d8f"/>
+    <!-- Butterfly upside down (rotated 180deg around center) -->
+    <g transform="rotate(180 50 50)">
+      <!-- Left wing -->
+      <path d="M50 50 C40 35, 18 28, 15 42 C12 54, 28 60, 50 50Z" fill="#f4c430"/>
+      <!-- Right wing -->
+      <path d="M50 50 C60 35, 82 28, 85 42 C88 54, 72 60, 50 50Z" fill="#f4c430"/>
+      <!-- Lower left wing -->
+      <path d="M50 50 C38 52, 20 62, 22 72 C24 80, 40 76, 50 50Z" fill="#f4c430"/>
+      <!-- Lower right wing -->
+      <path d="M50 50 C62 52, 80 62, 78 72 C76 80, 60 76, 50 50Z" fill="#f4c430"/>
+      <!-- Body -->
+      <ellipse cx="50" cy="50" rx="3" ry="9" fill="#1a6b5e"/>
+    </g>
+  </symbol>
+</svg>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-bg-grid"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-mark">
+        <div class="logo-icon"><svg width="44" height="44" viewBox="0 0 100 100"><use href="#butterfly-logo"/></svg></div>
+        <span class="logo-text">Temu-Note</span>
+      </div>
+      <div class="login-sub">Portail de gestion de l'établissement</div>
+    </div>
+    <div class="field-group">
+      <label>Identifiant</label>
+      <input type="text" id="loginId" placeholder="Votre identifiant" autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label>Mot de passe</label>
+      <input type="password" id="loginPwd" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Se connecter</button>
+    <div class="login-error" id="loginError">Identifiant ou mot de passe incorrect.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">
+        <div class="logo-icon"><svg width="34" height="34" viewBox="0 0 100 100"><use href="#butterfly-logo"/></svg></div>
+        <span class="logo-text">Temu-Note</span>
+      </div>
+      <span style="color:var(--border)">|</span>
+      <span style="font-size:13px;color:var(--text3)" id="schoolName">Collège Jean Moulin</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span id="notifBell" title="Notifications">🔔</span>
+      <div class="topbar-user">
+        <div class="user-avatar" id="topAvatar">MP</div>
+        <div class="user-info">
+          <div class="user-name" id="topName">MaxPommmier</div>
+          <div class="user-role" id="topRole">Principal</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebarEl">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigation</div>
+        <div class="nav-item active" onclick="showPage('dashboard', this)" id="nav-dashboard">
+          <span class="nav-icon">🏠</span> Tableau de bord
+        </div>
+        <div class="nav-item" onclick="showPage('accounts', this)" id="nav-accounts" data-perm="voir_comptes">
+          <span class="nav-icon">👥</span> Comptes
+        </div>
+        <div class="nav-item" onclick="showPage('permissions', this)" id="nav-permissions" data-perm="gerer_permissions">
+          <span class="nav-icon">🔐</span> Permissions des catégories
+        </div>
+        <div class="nav-item" onclick="showPage('notes', this)" id="nav-notes" data-perm="voir_notes">
+          <span class="nav-icon">📊</span> Notes & Bulletins
+        </div>
+        <div class="nav-item" onclick="showPage('emploidutemps', this)" id="nav-emploidutemps" data-perm="voir_emploi_du_temps">
+          <span class="nav-icon">📅</span> Emploi du temps
+        </div>
+        <div class="nav-item" onclick="showPage('absences', this)" id="nav-absences" data-perm="voir_absences">
+          <span class="nav-icon">📋</span> Absences & Retards
+        </div>
+        <div class="nav-item" onclick="showPage('cahierdetexte', this)" id="nav-cahierdetexte" data-perm="voir_cahier_de_texte">
+          <span class="nav-icon">📖</span> Cahier de texte
+        </div>
+        <div class="nav-item" onclick="showPage('messagerie', this)" id="nav-messagerie" data-perm="messagerie">
+          <span class="nav-icon">✉️</span> Messagerie
+        </div>
+        <div class="nav-item" onclick="showPage('vie_scolaire', this)" id="nav-vie_scolaire" data-perm="gerer_vie_scolaire">
+          <span class="nav-icon">🏫</span> Vie scolaire
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div class="page-title">Tableau de bord</div>
+          <div class="page-sub">Bienvenue sur Temu-Note — Vue d'ensemble de l'établissement</div>
+        </div>
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="card">
+          <div class="card-title">⚡ Activité récente</div>
+          <div id="activityLog" style="font-size:13px;color:var(--text2);line-height:2">
+            <div style="color:var(--text3);font-style:italic">Aucune activité pour l'instant.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCOUNTS PAGE -->
+      <div class="page" id="page-accounts">
+        <div class="page-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="page-title">Gestion des comptes</div>
+              <div class="page-sub">Créer, modifier et gérer tous les comptes de l'établissement</div>
+            </div>
+            <div id="createAccountBtnZone"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+            <input id="searchAccounts" type="text" placeholder="🔍 Rechercher un compte..." style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;flex:1;min-width:200px;" oninput="renderAccountsTable()">
+            <select id="filterRole" onchange="renderAccountsTable()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;">
+              <option value="">Toutes les catégories</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Identifiant</th>
+                  <th>Nom complet</th>
+                  <th>Catégorie</th>
+                  <th>Créé le</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="accountsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERMISSIONS PAGE -->
+      <div class="page" id="page-permissions">
+        <div class="page-header">
+          <div class="page-title">Permissions des catégories</div>
+          <div class="page-sub">Définissez les droits accordés à chaque catégorie de personnel</div>
+        </div>
+        <div class="cat-tabs" id="catTabsEl"></div>
+        <div class="card" id="permsCard">
+          <div class="card-title" id="permsCatTitle">Sélectionnez une catégorie</div>
+          <div class="perms-grid" id="permsGrid"></div>
+          <div style="margin-top:16px;display:flex;gap:10px">
+            <button class="btn btn-green" onclick="savePerms()">💾 Sauvegarder</button>
+            <button class="btn btn-ghost" onclick="resetPerms()">↺ Réinitialiser</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTES PAGE -->
+      <div class="page" id="page-notes">
+        <div class="page-header">
+          <div class="page-title">Notes & Bulletins</div>
+          <div class="page-sub">Consulter et gérer les notes des élèves</div>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 Gestion des notes</div>
+          <div class="empty">
+            <div class="empty-icon">📊</div>
+            <div class="empty-title">Module Notes</div>
+            <div>Saisissez des notes via les matières et les classes associées.</div>
+            <button class="btn btn-blue" style="margin-top:14px" onclick="showToast('Fonctionnalité disponible après création des classes','success')">➕ Nouvelle note</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMPLOI DU TEMPS -->
+      <div class="page" id="page-emploidutemps">
+        <div class="page-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <div>
+              <div class="page-title">Emploi du temps</div>
+              <div class="page-sub">Planning hebdomadaire — cliquez sur un créneau pour l'éditer</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <select id="edtClasseFilter" onchange="renderEDT()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none"></select>
+              <button class="btn btn-blue" onclick="openModal('modalAddCreneau')">➕ Ajouter un créneau</button>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="overflow-x:auto;padding:0">
+          <div id="edtGrid" style="min-width:700px"></div>
+        </div>
+      </div>
+
+      <!-- ABSENCES -->
+      <div class="page" id="page-absences">
+        <div class="page-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <div>
+              <div class="page-title">Absences & Retards</div>
+              <div class="page-sub">Registre des présences et gestion des justificatifs</div>
+            </div>
+            <button class="btn btn-blue" onclick="openModal('modalAddAbsence')">➕ Saisir une absence</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px" id="absStatsGrid"></div>
+        <div class="card">
+          <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+            <input id="absSearch" type="text" placeholder="🔍 Rechercher un élève..." oninput="renderAbsences()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;flex:1;min-width:180px">
+            <select id="absTypeFilter" onchange="renderAbsences()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none">
+              <option value="">Tous types</option>
+              <option value="absence">Absence</option>
+              <option value="retard">Retard</option>
+            </select>
+            <select id="absJustifFilter" onchange="renderAbsences()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none">
+              <option value="">Tous statuts</option>
+              <option value="non_justifie">Non justifié</option>
+              <option value="justifie">Justifié</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead><tr><th>Élève</th><th>Type</th><th>Date</th><th>Durée / Motif</th><th>Statut</th><th>Actions</th></tr></thead>
+              <tbody id="absBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAHIER DE TEXTE -->
+      <div class="page" id="page-cahierdetexte">
+        <div class="page-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <div>
+              <div class="page-title">Cahier de texte</div>
+              <div class="page-sub">Contenus de cours, devoirs et ressources pédagogiques</div>
+            </div>
+            <button class="btn btn-blue" onclick="openModal('modalAddCDT')">➕ Ajouter une entrée</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <select id="cdtMatiereFilter" onchange="renderCDT()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none">
+            <option value="">Toutes les matières</option>
+          </select>
+          <select id="cdtClasseFilter" onchange="renderCDT()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none">
+            <option value="">Toutes les classes</option>
+          </select>
+          <select id="cdtTypeFilter" onchange="renderCDT()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none">
+            <option value="">Tous types</option>
+            <option value="cours">Cours</option>
+            <option value="devoir">Devoir à rendre</option>
+            <option value="evaluation">Évaluation</option>
+            <option value="sortie">Sortie scolaire</option>
+          </select>
+        </div>
+        <div id="cdtList"></div>
+      </div>
+
+      <!-- MESSAGERIE -->
+      <div class="page" id="page-messagerie">
+        <div class="page-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <div>
+              <div class="page-title">Messagerie</div>
+              <div class="page-sub">Communication interne de l'établissement</div>
+            </div>
+            <button class="btn btn-blue" onclick="openModal('modalNewMsg')">✉️ Nouveau message</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:280px 1fr;gap:16px;min-height:500px">
+          <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Boîte de réception</div>
+            <div id="msgList" style="overflow-y:auto;max-height:500px"></div>
+          </div>
+          <div class="card" id="msgDetail" style="display:flex;align-items:center;justify-content:center;color:var(--text3)">
+            <div style="text-align:center">
+              <div style="font-size:36px;margin-bottom:10px">✉️</div>
+              <div>Sélectionnez un message pour le lire</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIE SCOLAIRE -->
+      <div class="page" id="page-vie_scolaire">
+        <div class="page-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <div>
+              <div class="page-title">Vie scolaire</div>
+              <div class="page-sub">Sanctions, félicitations et suivi disciplinaire des élèves</div>
+            </div>
+            <button class="btn btn-blue" onclick="openModal('modalAddVS')">➕ Nouvel événement</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:20px" id="vsStatsGrid"></div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <input id="vsSearch" type="text" placeholder="🔍 Rechercher un élève..." oninput="renderVS()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;flex:1;min-width:180px">
+          <select id="vsTypeFilter" onchange="renderVS()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none">
+            <option value="">Tous types</option>
+            <option value="felicitation">Félicitation</option>
+            <option value="avertissement">Avertissement</option>
+            <option value="retenue">Retenue</option>
+            <option value="exclusion">Exclusion</option>
+            <option value="conseil_discipline">Conseil de discipline</option>
+            <option value="punition">Punition</option>
+          </select>
+        </div>
+        <div class="card">
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead><tr><th>Élève</th><th>Type</th><th>Date</th><th>Motif</th><th>Par</th><th>Actions</th></tr></thead>
+              <tbody id="vsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /layout -->
+</div><!-- /app -->
+
+<!-- MODAL CRÉER COMPTE -->
+<div class="modal-overlay" id="modalCreateAccount">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">➕ Créer un compte MaxenceConnect</div>
+      <button class="modal-close" onclick="closeModal('modalCreateAccount')">✕</button>
+    </div>
+    <div class="form-field">
+      <label>Catégorie</label>
+      <select id="newRole" onchange="onRoleChange()">
+        <option value="">-- Choisir une catégorie --</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Prénom</label>
+        <input type="text" id="newPrenom" placeholder="Prénom">
+      </div>
+      <div class="form-field">
+        <label>Nom</label>
+        <input type="text" id="newNom" placeholder="Nom de famille">
+      </div>
+    </div>
+    <div class="form-field" id="classeFieldZone" style="display:none">
+      <label>Classe (pour élève)</label>
+      <input type="text" id="newClasse" placeholder="Ex: 6ème A">
+    </div>
+    <div class="form-field" id="matiereFieldZone" style="display:none">
+      <label>Matière(s) enseignée(s)</label>
+      <input type="text" id="newMatiere" placeholder="Ex: Mathématiques, SVT">
+    </div>
+    <button class="btn btn-blue" style="width:100%;padding:11px;margin-top:4px" onclick="createAccount()">Générer le compte</button>
+    <div class="generated-creds" id="generatedCreds">
+      <div class="cred-title">✅ Compte créé — Identifiants à transmettre</div>
+      <div class="cred-row"><span class="cred-label">Identifiant</span><span class="cred-value" id="credId"></span></div>
+      <div class="cred-row"><span class="cred-label">Mot de passe</span><span class="cred-value" id="credPwd"></span></div>
+      <div class="cred-row"><span class="cred-label">Catégorie</span><span class="cred-value" id="credRole"></span></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px;width:100%" onclick="copyCredsToClipboard()">📋 Copier les identifiants</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VOIR COMPTE -->
+<div class="modal-overlay" id="modalViewAccount">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">👤 Détails du compte</div>
+      <button class="modal-close" onclick="closeModal('modalViewAccount')">✕</button>
+    </div>
+    <div id="viewAccountContent"></div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-red btn-sm" onclick="deleteCurrentAccount()">🗑 Supprimer le compte</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalViewAccount')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDT CRÉNEAU -->
+<div class="modal-overlay" id="modalAddCreneau">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="creneauModalTitle">➕ Ajouter un créneau</div>
+      <button class="modal-close" onclick="closeModal('modalAddCreneau')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Jour</label>
+        <select id="crJour">
+          <option value="Lundi">Lundi</option><option value="Mardi">Mardi</option>
+          <option value="Mercredi">Mercredi</option><option value="Jeudi">Jeudi</option>
+          <option value="Vendredi">Vendredi</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Classe</label>
+        <input type="text" id="crClasse" placeholder="Ex: 6ème A">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Heure début</label>
+        <select id="crDebut" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;width:100%"></select>
+      </div>
+      <div class="form-field">
+        <label>Heure fin</label>
+        <select id="crFin" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;width:100%"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Matière</label>
+        <input type="text" id="crMatiere" placeholder="Ex: Mathématiques">
+      </div>
+      <div class="form-field">
+        <label>Professeur</label>
+        <input type="text" id="crProf" placeholder="Ex: M. Dupont">
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Salle</label>
+      <input type="text" id="crSalle" placeholder="Ex: Salle 12">
+    </div>
+    <input type="hidden" id="crEditId">
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-blue" style="flex:1;padding:11px" onclick="saveCreneau()">Enregistrer</button>
+      <button class="btn btn-ghost" onclick="closeModal('modalAddCreneau')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ABSENCE -->
+<div class="modal-overlay" id="modalAddAbsence">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📋 Saisir une absence / retard</div>
+      <button class="modal-close" onclick="closeModal('modalAddAbsence')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Élève</label>
+        <select id="absEleve" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;width:100%"><option value="">-- Sélectionner --</option></select>
+      </div>
+      <div class="form-field">
+        <label>Type</label>
+        <select id="absType">
+          <option value="absence">Absence</option>
+          <option value="retard">Retard</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Date</label>
+        <input type="date" id="absDate">
+      </div>
+      <div class="form-field">
+        <label>Durée</label>
+        <input type="text" id="absDuree" placeholder="Ex: 2h, journée entière">
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Motif</label>
+      <input type="text" id="absMotif" placeholder="Motif de l'absence / retard">
+    </div>
+    <div class="form-field">
+      <label>Statut justification</label>
+      <select id="absJustif">
+        <option value="non_justifie">Non justifié</option>
+        <option value="justifie">Justifié</option>
+      </select>
+    </div>
+    <button class="btn btn-blue" style="width:100%;padding:11px;margin-top:4px" onclick="saveAbsence()">Enregistrer</button>
+  </div>
+</div>
+
+<!-- MODAL CAHIER DE TEXTE -->
+<div class="modal-overlay" id="modalAddCDT">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📖 Ajouter une entrée au cahier de texte</div>
+      <button class="modal-close" onclick="closeModal('modalAddCDT')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Classe</label>
+        <input type="text" id="cdtClasse" placeholder="Ex: 5ème B">
+      </div>
+      <div class="form-field">
+        <label>Matière</label>
+        <input type="text" id="cdtMatiere" placeholder="Ex: Histoire-Géo">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Date du cours</label>
+        <input type="date" id="cdtDate">
+      </div>
+      <div class="form-field">
+        <label>Type d'entrée</label>
+        <select id="cdtType">
+          <option value="cours">Cours</option>
+          <option value="devoir">Devoir à rendre</option>
+          <option value="evaluation">Évaluation</option>
+          <option value="sortie">Sortie scolaire</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Titre</label>
+      <input type="text" id="cdtTitre" placeholder="Ex: Chapitre 3 — La Révolution française">
+    </div>
+    <div class="form-field">
+      <label>Contenu / Description</label>
+      <textarea id="cdtContenu" placeholder="Détails du cours, travail à faire, consignes..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;resize:vertical;min-height:90px;transition:border-color .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+    </div>
+    <div class="form-field">
+      <label>Pour le (date limite, si devoir)</label>
+      <input type="date" id="cdtDateLimite">
+    </div>
+    <button class="btn btn-blue" style="width:100%;padding:11px;margin-top:4px" onclick="saveCDT()">Enregistrer</button>
+  </div>
+</div>
+
+<!-- MODAL NOUVEAU MESSAGE -->
+<div class="modal-overlay" id="modalNewMsg">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✉️ Nouveau message</div>
+      <button class="modal-close" onclick="closeModal('modalNewMsg')">✕</button>
+    </div>
+    <div class="form-field">
+      <label>Destinataire</label>
+      <select id="msgDest" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;width:100%"><option value="">-- Sélectionner --</option></select>
+    </div>
+    <div class="form-field">
+      <label>Objet</label>
+      <input type="text" id="msgObjet" placeholder="Objet du message">
+    </div>
+    <div class="form-field">
+      <label>Message</label>
+      <textarea id="msgCorps" placeholder="Rédigez votre message ici..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;resize:vertical;min-height:120px;transition:border-color .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+    </div>
+    <button class="btn btn-blue" style="width:100%;padding:11px;margin-top:4px" onclick="sendMessage()">Envoyer ✈️</button>
+  </div>
+</div>
+
+<!-- MODAL VIE SCOLAIRE -->
+<div class="modal-overlay" id="modalAddVS">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🏫 Nouvel événement de vie scolaire</div>
+      <button class="modal-close" onclick="closeModal('modalAddVS')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Élève</label>
+        <select id="vsEleve" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;width:100%"><option value="">-- Sélectionner --</option></select>
+      </div>
+      <div class="form-field">
+        <label>Type d'événement</label>
+        <select id="vsType">
+          <option value="felicitation">🌟 Félicitation</option>
+          <option value="avertissement">⚠️ Avertissement</option>
+          <option value="retenue">🔒 Retenue</option>
+          <option value="exclusion">🚫 Exclusion</option>
+          <option value="conseil_discipline">⚖️ Conseil de discipline</option>
+          <option value="punition">📝 Punition</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Date</label>
+      <input type="date" id="vsDate">
+    </div>
+    <div class="form-field">
+      <label>Motif / Description</label>
+      <textarea id="vsMotif" placeholder="Décrire la raison de cet événement..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;resize:vertical;min-height:80px;transition:border-color .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+    </div>
+    <button class="btn btn-blue" style="width:100%;padding:11px;margin-top:4px" onclick="saveVS()">Enregistrer</button>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ========== DATA ==========
+const ADMIN_CREDS = { id: 'MaxPommmier', pwd: 'Max20267' };
+
+const CATEGORIES = [
+  { key: 'principal', label: 'Principal', badge: 'badge-principal', emoji: '👑' },
+  { key: 'principal_adjoint', label: 'Principal Adjoint', badge: 'badge-principal-adj', emoji: '⭐' },
+  { key: 'prof', label: 'Professeur', badge: 'badge-prof', emoji: '📐' },
+  { key: 'cpe', label: 'CPE', badge: 'badge-cpe', emoji: '🛡' },
+  { key: 'eleve', label: 'Élève', badge: 'badge-eleve', emoji: '🎒' },
+  { key: 'surveillant', label: 'Surveillant', badge: 'badge-surveillant', emoji: '👁' },
+  { key: 'aesh', label: 'AESH', badge: 'badge-aesh', emoji: '🤝' },
+  { key: 'infirmier', label: 'Infirmier(e)', badge: 'badge-ghost', emoji: '🏥' },
+  { key: 'secretaire', label: 'Secrétaire', badge: 'badge-ghost', emoji: '📂' },
+  { key: 'documentaliste', label: 'Documentaliste', badge: 'badge-ghost', emoji: '📚' },
+];
+
+const ALL_PERMISSIONS = [
+  { key: 'creer_comptes', name: 'Créer des comptes', desc: 'Peut créer des comptes MaxenceConnect', section: 'Administration' },
+  { key: 'supprimer_comptes', name: 'Supprimer des comptes', desc: 'Peut supprimer des comptes existants', section: 'Administration' },
+  { key: 'voir_comptes', name: 'Voir les comptes', desc: 'Accès à la liste de tous les comptes', section: 'Administration' },
+  { key: 'gerer_permissions', name: 'Gérer les permissions', desc: 'Modifier les permissions des catégories', section: 'Administration' },
+  { key: 'voir_notes', name: 'Voir les notes', desc: 'Consulter les notes des élèves', section: 'Pédagogie' },
+  { key: 'saisir_notes', name: 'Saisir des notes', desc: 'Entrer et modifier des notes', section: 'Pédagogie' },
+  { key: 'valider_notes', name: 'Valider les bulletins', desc: 'Signer et publier les bulletins', section: 'Pédagogie' },
+  { key: 'voir_emploi_du_temps', name: 'Voir l\'EDT', desc: 'Consulter les emplois du temps', section: 'Organisation' },
+  { key: 'modifier_emploi_du_temps', name: 'Modifier l\'EDT', desc: 'Créer et modifier les créneaux', section: 'Organisation' },
+  { key: 'voir_absences', name: 'Voir les absences', desc: 'Consulter le registre des absences', section: 'Vie scolaire' },
+  { key: 'saisir_absences', name: 'Saisir des absences', desc: 'Enregistrer absences et retards', section: 'Vie scolaire' },
+  { key: 'justifier_absences', name: 'Justifier des absences', desc: 'Valider les justificatifs', section: 'Vie scolaire' },
+  { key: 'gerer_vie_scolaire', name: 'Gérer la vie scolaire', desc: 'Sanctions, félicitations, punitions', section: 'Vie scolaire' },
+  { key: 'voir_cahier_de_texte', name: 'Voir le cahier de texte', desc: 'Accès aux contenus de cours', section: 'Pédagogie' },
+  { key: 'modifier_cahier_de_texte', name: 'Modifier le cahier de texte', desc: 'Saisir les travaux et devoirs', section: 'Pédagogie' },
+  { key: 'messagerie', name: 'Messagerie', desc: 'Envoyer et recevoir des messages', section: 'Communication' },
+  { key: 'messagerie_externe', name: 'Messagerie externe', desc: 'Contacter les parents d\'élèves', section: 'Communication' },
+  { key: 'consultation_dossier', name: 'Consulter les dossiers', desc: 'Accès aux dossiers des élèves', section: 'Dossiers' },
+  { key: 'modifier_dossier', name: 'Modifier les dossiers', desc: 'Éditer les informations des élèves', section: 'Dossiers' },
+  { key: 'statistiques', name: 'Statistiques établissement', desc: 'Consulter les rapports et stats', section: 'Administration' },
+  { key: 'gestion_classes', name: 'Gérer les classes', desc: 'Créer, modifier, supprimer les classes', section: 'Organisation' },
+];
+
+// DEFAULT PERMISSIONS per category
+const DEFAULT_PERMS = {
+  principal: Object.fromEntries(ALL_PERMISSIONS.map(p => [p.key, 'oui'])),
+  principal_adjoint: Object.fromEntries(ALL_PERMISSIONS.map(p => [p.key,
+    ['creer_comptes','supprimer_comptes','voir_comptes','voir_notes','saisir_notes','valider_notes','voir_emploi_du_temps','modifier_emploi_du_temps','voir_absences','saisir_absences','justifier_absences','gerer_vie_scolaire','voir_cahier_de_texte','messagerie','messagerie_externe','consultation_dossier','modifier_dossier','statistiques','gestion_classes'].includes(p.key) ? 'oui' : 'neutre'])),
+  prof: Object.fromEntries(ALL_PERMISSIONS.map(p => [p.key,
+    ['voir_notes','saisir_notes','voir_emploi_du_temps','voir_absences','saisir_absences','voir_cahier_de_texte','modifier_cahier_de_texte','messagerie','messagerie_externe','consultation_dossier'].includes(p.key) ? 'oui' : 'non'])),
+  cpe: Object.fromEntries(ALL_PERMISSIONS.map(p => [p.key,
+    ['voir_absences','saisir_absences','justifier_absences','gerer_vie_scolaire','messagerie','messagerie_externe','consultation_dossier','modifier_dossier','voir_emploi_du_temps','voir_notes'].includes(p.key) ? 'oui' : 'non'])),
+  eleve: Object.fromEntries(ALL_PERMISSIONS.map(p => [p.key,
+    ['voir_notes','voir_emploi_du_temps','voir_absences','voir_cahier_de_texte','messagerie'].includes(p.key) ? 'oui' : 'non'])),
+  surveillant: Object.fromEntries(ALL_PERMISSIONS.map(p => [p.key,
+    ['voir_absences','saisir_absences','messagerie','voir_emploi_du_temps'].includes(p.key) ? 'oui' : 'non'])),
+  aesh: Object.fromEntries(ALL_PERMISSIONS.map(p => [p.key,
+    ['voir_notes','voir_emploi_du_temps','voir_cahier_de_texte','messagerie','consultation_dossier'].includes(p.key) ? 'oui' : 'non'])),
+  infirmier: Object.fromEntries(ALL_PERMISSIONS.map(p => [p.key,
+    ['consultation_dossier','messagerie','voir_absences'].includes(p.key) ? 'oui' : 'non'])),
+  secretaire: Object.fromEntries(ALL_PERMISSIONS.map(p => [p.key,
+    ['voir_comptes','consultation_dossier','modifier_dossier','messagerie','statistiques'].includes(p.key) ? 'oui' : 'non'])),
+  documentaliste: Object.fromEntries(ALL_PERMISSIONS.map(p => [p.key,
+    ['voir_cahier_de_texte','messagerie','voir_emploi_du_temps'].includes(p.key) ? 'oui' : 'non'])),
+};
+
+let state = {
+  loggedIn: false,
+  currentUser: null,
+  accounts: JSON.parse(localStorage.getItem('tn_accounts') || '[]'),
+  permissions: JSON.parse(localStorage.getItem('tn_permissions') || 'null') || JSON.parse(JSON.stringify(DEFAULT_PERMS)),
+  activity: JSON.parse(localStorage.getItem('tn_activity') || '[]'),
+  edt: JSON.parse(localStorage.getItem('tn_edt') || '[]'),
+  absences: JSON.parse(localStorage.getItem('tn_absences') || '[]'),
+  cdt: JSON.parse(localStorage.getItem('tn_cdt') || '[]'),
+  messages: JSON.parse(localStorage.getItem('tn_messages') || '[]'),
+  vs: JSON.parse(localStorage.getItem('tn_vs') || '[]'),
+  currentPermCat: null,
+  viewingAccountId: null,
+};
+
+function saveState() {
+  localStorage.setItem('tn_accounts', JSON.stringify(state.accounts));
+  localStorage.setItem('tn_permissions', JSON.stringify(state.permissions));
+  localStorage.setItem('tn_activity', JSON.stringify(state.activity));
+  localStorage.setItem('tn_edt', JSON.stringify(state.edt));
+  localStorage.setItem('tn_absences', JSON.stringify(state.absences));
+  localStorage.setItem('tn_cdt', JSON.stringify(state.cdt));
+  localStorage.setItem('tn_messages', JSON.stringify(state.messages));
+  localStorage.setItem('tn_vs', JSON.stringify(state.vs));
+}
+
+// ========== AUTH ==========
+function doLogin() {
+  const id = document.getElementById('loginId').value.trim();
+  const pwd = document.getElementById('loginPwd').value.trim();
+  const err = document.getElementById('loginError');
+  
+  if (id === ADMIN_CREDS.id && pwd === ADMIN_CREDS.pwd) {
+    state.loggedIn = true;
+    state.currentUser = { id: ADMIN_CREDS.id, role: 'admin', name: 'MaxPommmier', fullName: 'MaxPommmier' };
+    err.style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  } else {
+    // Check other accounts
+    const account = state.accounts.find(a => a.id === id && a.password === pwd);
+    if (account) {
+      state.loggedIn = true;
+      state.currentUser = account;
+      err.style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      initApp();
+    } else {
+      err.style.display = 'block';
+    }
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !state.loggedIn) doLogin();
+});
+
+function doLogout() {
+  state.loggedIn = false;
+  state.currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginId').value = '';
+  document.getElementById('loginPwd').value = '';
+  showPage('dashboard', document.getElementById('nav-dashboard'));
+}
+
+// ========== INIT ==========
+function initApp() {
+  const u = state.currentUser;
+  const isAdmin = u.role === 'admin';
+  
+  document.getElementById('topName').textContent = u.fullName || u.id;
+  document.getElementById('topRole').textContent = isAdmin ? 'Principal (Admin)' : getCatLabel(u.role);
+  document.getElementById('topAvatar').textContent = (u.fullName || u.id).slice(0, 2).toUpperCase();
+
+  buildSidebar();
+  renderStats();
+  renderActivityLog();
+  renderAccountsTable();
+  buildRoleFilter();
+  buildCatTabs();
+  buildCreateAccountBtn();
+  initEDT();
+  initAbsences();
+  initCDT();
+  initMessagerie();
+  initVS();
+  showPage('dashboard', document.getElementById('nav-dashboard'));
+}
+
+function hasPermission(perm) {
+  const u = state.currentUser;
+  if (!u) return false;
+  if (u.role === 'admin') return true;
+  const rolePerms = state.permissions[u.role] || {};
+  return rolePerms[perm] === 'oui';
+}
+
+function buildSidebar() {
+  document.querySelectorAll('.nav-item[data-perm]').forEach(item => {
+    const perm = item.getAttribute('data-perm');
+    if (perm && !hasPermission(perm) && state.currentUser.role !== 'admin') {
+      item.style.display = 'none';
+    } else {
+      item.style.display = 'flex';
+    }
+  });
+}
+
+function buildCreateAccountBtn() {
+  const zone = document.getElementById('createAccountBtnZone');
+  if (hasPermission('creer_comptes')) {
+    zone.innerHTML = `<button class="btn btn-blue" onclick="openModal('modalCreateAccount');resetCreateForm()">➕ Créer un compte MaxenceConnect</button>`;
+  } else {
+    zone.innerHTML = '';
+  }
+}
+
+// ========== NAVIGATION ==========
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ========== STATS ==========
+function renderStats() {
+  const g = document.getElementById('statsGrid');
+  const counts = {};
+  CATEGORIES.forEach(c => counts[c.key] = 0);
+  state.accounts.forEach(a => { if (counts[a.role] !== undefined) counts[a.role]++; });
+  
+  const items = [
+    { num: state.accounts.length, label: 'Comptes totaux' },
+    { num: counts.eleve, label: 'Élèves' },
+    { num: counts.prof, label: 'Professeurs' },
+    { num: counts.cpe + counts.surveillant + counts.aesh, label: 'Vie scolaire' },
+  ];
+  
+  g.innerHTML = items.map(i => `
+    <div class="stat-card">
+      <div class="stat-num">${i.num}</div>
+      <div class="stat-label">${i.label}</div>
+    </div>
+  `).join('');
+}
+
+// ========== ACTIVITY ==========
+function addActivity(msg) {
+  const now = new Date();
+  const time = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  state.activity.unshift({ msg, time, date: now.toLocaleDateString('fr-FR') });
+  if (state.activity.length > 20) state.activity.pop();
+  saveState();
+  renderActivityLog();
+}
+
+function renderActivityLog() {
+  const el = document.getElementById('activityLog');
+  if (!state.activity.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-style:italic">Aucune activité pour l\'instant.</div>';
+    return;
+  }
+  el.innerHTML = state.activity.slice(0, 10).map(a => `
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span>${a.msg}</span>
+      <span style="color:var(--text3);font-size:12px;font-family:'JetBrains Mono',monospace">${a.date} ${a.time}</span>
+    </div>
+  `).join('');
+}
+
+// ========== ACCOUNTS ==========
+function getCatLabel(key) {
+  const c = CATEGORIES.find(c => c.key === key);
+  return c ? c.label : key;
+}
+
+function getCatBadge(key) {
+  const c = CATEGORIES.find(c => c.key === key);
+  return c ? c.badge : 'badge-ghost';
+}
+
+function getCatEmoji(key) {
+  const c = CATEGORIES.find(c => c.key === key);
+  return c ? c.emoji : '👤';
+}
+
+function buildRoleFilter() {
+  const sel = document.getElementById('filterRole');
+  CATEGORIES.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.key;
+    opt.textContent = c.label;
+    sel.appendChild(opt);
+  });
+}
+
+function renderAccountsTable() {
+  const search = (document.getElementById('searchAccounts')?.value || '').toLowerCase();
+  const roleFilter = document.getElementById('filterRole')?.value || '';
+  const tbody = document.getElementById('accountsBody');
+  
+  let filtered = state.accounts.filter(a => {
+    const matchSearch = !search || a.id.toLowerCase().includes(search) || a.fullName.toLowerCase().includes(search);
+    const matchRole = !roleFilter || a.role === roleFilter;
+    return matchSearch && matchRole;
+  });
+  
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:30px">Aucun compte trouvé</td></tr>`;
+    return;
+  }
+  
+  tbody.innerHTML = filtered.map(a => `
+    <tr>
+      <td><span style="font-family:'JetBrains Mono',monospace;color:var(--accent)">${a.id}</span></td>
+      <td style="font-weight:600">${a.fullName}</td>
+      <td><span class="badge ${getCatBadge(a.role)}">${getCatEmoji(a.role)} ${getCatLabel(a.role)}</span></td>
+      <td style="color:var(--text3);font-size:12px">${a.createdAt || '—'}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="viewAccount('${a.id}')">👁 Voir</button>
+        ${hasPermission('supprimer_comptes') ? `<button class="btn btn-red btn-sm" onclick="deleteAccount('${a.id}')">🗑</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function viewAccount(id) {
+  const a = state.accounts.find(acc => acc.id === id);
+  if (!a) return;
+  state.viewingAccountId = id;
+  const perms = state.permissions[a.role] || {};
+  const permList = ALL_PERMISSIONS.filter(p => perms[p.key] === 'oui').map(p => `<span class="badge" style="background:#10b98115;color:#10b981;border:1px solid #10b98130;margin:2px">${p.name}</span>`).join('') || '<span style="color:var(--text3)">Aucune permission active</span>';
+  
+  document.getElementById('viewAccountContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <div style="width:52px;height:52px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px">${getCatEmoji(a.role)}</div>
+      <div>
+        <div style="font-size:18px;font-weight:700">${a.fullName}</div>
+        <span class="badge ${getCatBadge(a.role)}" style="margin-top:4px">${getCatLabel(a.role)}</span>
+      </div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px">
+      <div class="cred-row"><span class="cred-label">Identifiant</span><span class="cred-value">${a.id}</span></div>
+      <div class="cred-row"><span class="cred-label">Mot de passe</span><span class="cred-value">${a.password}</span></div>
+      ${a.classe ? `<div class="cred-row"><span class="cred-label">Classe</span><span class="cred-value">${a.classe}</span></div>` : ''}
+      ${a.matiere ? `<div class="cred-row"><span class="cred-label">Matière(s)</span><span class="cred-value">${a.matiere}</span></div>` : ''}
+      <div class="cred-row"><span class="cred-label">Créé le</span><span class="cred-value">${a.createdAt}</span></div>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Permissions actives</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px">${permList}</div>
+  `;
+  openModal('modalViewAccount');
+}
+
+function deleteCurrentAccount() {
+  if (state.viewingAccountId) {
+    deleteAccount(state.viewingAccountId);
+    closeModal('modalViewAccount');
+  }
+}
+
+function deleteAccount(id) {
+  const a = state.accounts.find(acc => acc.id === id);
+  if (!a) return;
+  if (!confirm(`Supprimer le compte de ${a.fullName} ?`)) return;
+  state.accounts = state.accounts.filter(acc => acc.id !== id);
+  saveState();
+  renderAccountsTable();
+  renderStats();
+  addActivity(`🗑 Compte supprimé : ${a.fullName} (${getCatLabel(a.role)})`);
+  showToast(`Compte de ${a.fullName} supprimé`, 'success');
+}
+
+// ========== CREATE ACCOUNT ==========
+function resetCreateForm() {
+  document.getElementById('newRole').value = '';
+  document.getElementById('newPrenom').value = '';
+  document.getElementById('newNom').value = '';
+  document.getElementById('newClasse').value = '';
+  document.getElementById('newMatiere').value = '';
+  document.getElementById('generatedCreds').style.display = 'none';
+  document.getElementById('classeFieldZone').style.display = 'none';
+  document.getElementById('matiereFieldZone').style.display = 'none';
+  
+  const sel = document.getElementById('newRole');
+  sel.innerHTML = '<option value="">-- Choisir une catégorie --</option>';
+  CATEGORIES.filter(c => c.key !== 'principal').forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.key;
+    opt.textContent = `${c.emoji} ${c.label}`;
+    sel.appendChild(opt);
+  });
+}
+
+function onRoleChange() {
+  const role = document.getElementById('newRole').value;
+  document.getElementById('classeFieldZone').style.display = role === 'eleve' ? 'block' : 'none';
+  document.getElementById('matiereFieldZone').style.display = role === 'prof' ? 'block' : 'none';
+  document.getElementById('generatedCreds').style.display = 'none';
+}
+
+function generateId(prenom, nom, role) {
+  const clean = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z]/g, '');
+  const base = clean(prenom).slice(0, 1).toUpperCase() + clean(nom).charAt(0).toUpperCase() + clean(nom).slice(1, 8);
+  const num = Math.floor(100 + Math.random() * 900);
+  return base + num;
+}
+
+function generatePwd() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#!';
+  let pwd = '';
+  for (let i = 0; i < 10; i++) pwd += chars[Math.floor(Math.random() * chars.length)];
+  return pwd;
+}
+
+function createAccount() {
+  const role = document.getElementById('newRole').value;
+  const prenom = document.getElementById('newPrenom').value.trim();
+  const nom = document.getElementById('newNom').value.trim();
+  const classe = document.getElementById('newClasse').value.trim();
+  const matiere = document.getElementById('newMatiere').value.trim();
+  
+  if (!role || !prenom || !nom) {
+    showToast('Veuillez remplir tous les champs obligatoires', 'error');
+    return;
+  }
+  
+  const id = generateId(prenom, nom, role);
+  const pwd = generatePwd();
+  const now = new Date().toLocaleDateString('fr-FR');
+  
+  const account = {
+    id, password: pwd, role, prenom, nom,
+    fullName: prenom + ' ' + nom,
+    classe: classe || null,
+    matiere: matiere || null,
+    createdAt: now,
+  };
+  
+  state.accounts.push(account);
+  saveState();
+  renderAccountsTable();
+  renderStats();
+  addActivity(`✅ Nouveau compte créé : ${prenom} ${nom} (${getCatLabel(role)})`);
+  
+  document.getElementById('credId').textContent = id;
+  document.getElementById('credPwd').textContent = pwd;
+  document.getElementById('credRole').textContent = getCatLabel(role);
+  document.getElementById('generatedCreds').style.display = 'block';
+  
+  showToast(`Compte créé pour ${prenom} ${nom}`, 'success');
+}
+
+function copyCredsToClipboard() {
+  const id = document.getElementById('credId').textContent;
+  const pwd = document.getElementById('credPwd').textContent;
+  navigator.clipboard.writeText(`Identifiant : ${id}\nMot de passe : ${pwd}`).then(() => {
+    showToast('Identifiants copiés !', 'success');
+  });
+}
+
+// ========== PERMISSIONS ==========
+function buildCatTabs() {
+  const el = document.getElementById('catTabsEl');
+  el.innerHTML = CATEGORIES.map(c => `
+    <button class="cat-tab" onclick="selectPermCat('${c.key}', this)">${c.emoji} ${c.label}</button>
+  `).join('');
+}
+
+function selectPermCat(key, btn) {
+  state.currentPermCat = key;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderPermsGrid(key);
+}
+
+function renderPermsGrid(catKey) {
+  const cat = CATEGORIES.find(c => c.key === catKey);
+  const catPerms = state.permissions[catKey] || {};
+  
+  document.getElementById('permsCatTitle').innerHTML = `🔐 Permissions — <span style="color:var(--accent)">${cat.emoji} ${cat.label}</span>`;
+  
+  const sections = [...new Set(ALL_PERMISSIONS.map(p => p.section))];
+  
+  let html = '';
+  sections.forEach(section => {
+    const sectionPerms = ALL_PERMISSIONS.filter(p => p.section === section);
+    html += `<div style="grid-column:1/-1;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:8px;margin-bottom:4px">${section}</div>`;
+    sectionPerms.forEach(p => {
+      const val = catPerms[p.key] || 'neutre';
+      html += `
+        <div class="perm-item">
+          <div>
+            <div class="perm-name">${p.name}</div>
+            <div class="perm-desc">${p.desc}</div>
+          </div>
+          <div class="perm-toggle" id="toggle-${catKey}-${p.key}">
+            <button class="perm-btn ${val === 'oui' ? 'active-yes' : ''}" onclick="setPermVal('${catKey}','${p.key}','oui',this)">OUI</button>
+            <button class="perm-btn ${val === 'neutre' ? 'active-neutre' : ''}" onclick="setPermVal('${catKey}','${p.key}','neutre',this)">≡</button>
+            <button class="perm-btn ${val === 'non' ? 'active-non' : ''}" onclick="setPermVal('${catKey}','${p.key}','non',this)">NON</button>
+          </div>
+        </div>
+      `;
+    });
+  });
+  
+  document.getElementById('permsGrid').innerHTML = html;
+}
+
+function setPermVal(cat, permKey, val, btn) {
+  if (!state.permissions[cat]) state.permissions[cat] = {};
+  state.permissions[cat][permKey] = val;
+  
+  const toggle = btn.parentElement;
+  toggle.querySelectorAll('.perm-btn').forEach(b => {
+    b.classList.remove('active-yes', 'active-neutre', 'active-non');
+  });
+  const cls = val === 'oui' ? 'active-yes' : val === 'non' ? 'active-non' : 'active-neutre';
+  btn.classList.add(cls);
+}
+
+function savePerms() {
+  saveState();
+  buildSidebar();
+  buildCreateAccountBtn();
+  showToast('Permissions sauvegardées', 'success');
+  if (state.currentPermCat) addActivity(`🔐 Permissions modifiées : ${getCatLabel(state.currentPermCat)}`);
+}
+
+function resetPerms() {
+  if (!state.currentPermCat) return;
+  if (!confirm('Réinitialiser les permissions par défaut pour cette catégorie ?')) return;
+  state.permissions[state.currentPermCat] = JSON.parse(JSON.stringify(DEFAULT_PERMS[state.currentPermCat] || {}));
+  saveState();
+  renderPermsGrid(state.currentPermCat);
+  showToast('Permissions réinitialisées', 'success');
+}
+
+// ========== MODALS ==========
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ========== TOAST ==========
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `${type === 'success' ? '✅' : '❌'} ${msg}`;
+  container.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ===================================================
+// ========== EDT ==========
+// ===================================================
+const EDT_HOURS = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00'];
+const EDT_JOURS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
+const EDT_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#14b8a6'];
+
+function initEDT() {
+  const debutSel = document.getElementById('crDebut');
+  const finSel = document.getElementById('crFin');
+  debutSel.innerHTML = EDT_HOURS.map(h => `<option value="${h}">${h}</option>`).join('');
+  finSel.innerHTML = EDT_HOURS.map(h => `<option value="${h}">${h}</option>`).join('');
+  finSel.value = '09:00';
+  refreshEdtClasseFilter();
+  renderEDT();
+}
+
+function refreshEdtClasseFilter() {
+  const sel = document.getElementById('edtClasseFilter');
+  const classes = [...new Set(state.edt.map(c => c.classe))].sort();
+  const all = state.accounts.filter(a => a.classe).map(a => a.classe);
+  const merged = [...new Set([...classes, ...all])].sort();
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Toutes les classes</option>' + merged.map(c => `<option value="${c}">${c}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+function renderEDT() {
+  const classeFilter = document.getElementById('edtClasseFilter').value;
+  const creneaux = classeFilter ? state.edt.filter(c => c.classe === classeFilter) : state.edt;
+
+  const timeStart = 8, timeEnd = 18;
+  const totalSlots = (timeEnd - timeStart) * 2;
+
+  let html = `<div style="display:grid;grid-template-columns:70px repeat(5,1fr);border-bottom:1px solid var(--border)">`;
+  html += `<div style="padding:10px;font-size:11px;color:var(--text3)"></div>`;
+  EDT_JOURS.forEach(j => {
+    html += `<div style="padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:var(--text2);border-left:1px solid var(--border)">${j}</div>`;
+  });
+  html += `</div>`;
+
+  html += `<div style="display:grid;grid-template-columns:70px repeat(5,1fr)">`;
+  // Time column
+  html += `<div>`;
+  for (let i = 0; i <= totalSlots; i++) {
+    const h = timeStart + Math.floor(i/2);
+    const m = i % 2 === 0 ? '00' : '30';
+    if (m === '00') {
+      html += `<div style="height:30px;padding:0 8px;font-size:10px;color:var(--text3);display:flex;align-items:flex-start;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace">${String(h).padStart(2,'0')}:00</div>`;
+    } else {
+      html += `<div style="height:30px;border-top:1px dashed #1e2d4a"></div>`;
+    }
+  }
+  html += `</div>`;
+
+  EDT_JOURS.forEach(jour => {
+    html += `<div style="border-left:1px solid var(--border);position:relative">`;
+    for (let i = 0; i <= totalSlots; i++) {
+      html += `<div style="height:30px;border-top:1px solid ${i%2===0?'var(--border)':'#1e2d4a'}"></div>`;
+    }
+    // Overlay creneaux
+    const jourCreneaux = creneaux.filter(c => c.jour === jour);
+    jourCreneaux.forEach((cr, idx) => {
+      const [dh, dm] = cr.debut.split(':').map(Number);
+      const [fh, fm] = cr.fin.split(':').map(Number);
+      const top = ((dh - timeStart) * 2 + (dm === 30 ? 1 : 0)) * 30;
+      const height = ((fh - dh) * 2 + (fm === 30 ? 1 : 0) - (dm === 30 ? 1 : 0)) * 30;
+      const color = EDT_COLORS[Math.abs(cr.matiere.charCodeAt(0)) % EDT_COLORS.length];
+      html += `<div onclick="editCreneau('${cr.id}')" style="position:absolute;left:3px;right:3px;top:${top}px;height:${Math.max(height-4,20)}px;background:${color}22;border-left:3px solid ${color};border-radius:6px;padding:3px 6px;cursor:pointer;overflow:hidden;transition:background .15s" onmouseover="this.style.background='${color}44'" onmouseout="this.style.background='${color}22'">
+        <div style="font-size:11px;font-weight:700;color:${color}">${cr.matiere}</div>
+        <div style="font-size:10px;color:var(--text3)">${cr.debut}–${cr.fin}${cr.salle?' · '+cr.salle:''}</div>
+        ${!classeFilter ? `<div style="font-size:10px;color:var(--text2)">${cr.classe}</div>` : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  html += `</div>`;
+  document.getElementById('edtGrid').innerHTML = html;
+}
+
+function editCreneau(id) {
+  const cr = state.edt.find(c => c.id === id);
+  if (!cr) return;
+  document.getElementById('creneauModalTitle').textContent = '✏️ Modifier le créneau';
+  document.getElementById('crJour').value = cr.jour;
+  document.getElementById('crClasse').value = cr.classe;
+  document.getElementById('crDebut').value = cr.debut;
+  document.getElementById('crFin').value = cr.fin;
+  document.getElementById('crMatiere').value = cr.matiere;
+  document.getElementById('crProf').value = cr.prof || '';
+  document.getElementById('crSalle').value = cr.salle || '';
+  document.getElementById('crEditId').value = id;
+  openModal('modalAddCreneau');
+}
+
+function saveCreneau() {
+  const jour = document.getElementById('crJour').value;
+  const classe = document.getElementById('crClasse').value.trim();
+  const debut = document.getElementById('crDebut').value;
+  const fin = document.getElementById('crFin').value;
+  const matiere = document.getElementById('crMatiere').value.trim();
+  const prof = document.getElementById('crProf').value.trim();
+  const salle = document.getElementById('crSalle').value.trim();
+  const editId = document.getElementById('crEditId').value;
+
+  if (!classe || !matiere) { showToast('Classe et matière obligatoires', 'error'); return; }
+  if (debut >= fin) { showToast('L\'heure de fin doit être après le début', 'error'); return; }
+
+  if (editId) {
+    const idx = state.edt.findIndex(c => c.id === editId);
+    if (idx !== -1) state.edt[idx] = { id: editId, jour, classe, debut, fin, matiere, prof, salle };
+    addActivity(`✏️ Créneau modifié : ${matiere} (${classe}, ${jour})`);
+  } else {
+    state.edt.push({ id: Date.now().toString(), jour, classe, debut, fin, matiere, prof, salle });
+    addActivity(`📅 Créneau ajouté : ${matiere} (${classe}, ${jour} ${debut}–${fin})`);
+  }
+  saveState();
+  refreshEdtClasseFilter();
+  renderEDT();
+  closeModal('modalAddCreneau');
+  document.getElementById('crEditId').value = '';
+  document.getElementById('creneauModalTitle').textContent = '➕ Ajouter un créneau';
+  showToast('Créneau enregistré', 'success');
+}
+
+// ===================================================
+// ========== ABSENCES ==========
+// ===================================================
+function initAbsences() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('absDate').value = today;
+  refreshAbsEleveSelect();
+  renderAbsences();
+}
+
+function refreshAbsEleveSelect() {
+  const sel = document.getElementById('absEleve');
+  const eleves = state.accounts.filter(a => a.role === 'eleve');
+  sel.innerHTML = '<option value="">-- Sélectionner un élève --</option>' + eleves.map(e => `<option value="${e.id}">${e.fullName}${e.classe ? ' ('+e.classe+')' : ''}</option>`).join('');
+}
+
+function saveAbsence() {
+  const eleveId = document.getElementById('absEleve').value;
+  const type = document.getElementById('absType').value;
+  const date = document.getElementById('absDate').value;
+  const duree = document.getElementById('absDuree').value.trim();
+  const motif = document.getElementById('absMotif').value.trim();
+  const justif = document.getElementById('absJustif').value;
+
+  if (!eleveId) { showToast('Sélectionnez un élève', 'error'); return; }
+
+  const eleve = state.accounts.find(a => a.id === eleveId);
+  state.absences.push({ id: Date.now().toString(), eleveId, eleveName: eleve?.fullName || eleveId, type, date, duree, motif, justif });
+  saveState();
+  renderAbsences();
+  closeModal('modalAddAbsence');
+  document.getElementById('absMotif').value = '';
+  document.getElementById('absDuree').value = '';
+  addActivity(`📋 ${type === 'retard' ? 'Retard' : 'Absence'} saisie : ${eleve?.fullName}`);
+  showToast(`${type === 'retard' ? 'Retard' : 'Absence'} enregistré(e)`, 'success');
+}
+
+function toggleJustif(id) {
+  const a = state.absences.find(x => x.id === id);
+  if (!a) return;
+  a.justif = a.justif === 'justifie' ? 'non_justifie' : 'justifie';
+  saveState();
+  renderAbsences();
+  showToast('Statut mis à jour', 'success');
+}
+
+function deleteAbsence(id) {
+  state.absences = state.absences.filter(a => a.id !== id);
+  saveState();
+  renderAbsences();
+  showToast('Entrée supprimée', 'success');
+}
+
+function renderAbsences() {
+  const search = (document.getElementById('absSearch')?.value || '').toLowerCase();
+  const typeF = document.getElementById('absTypeFilter')?.value || '';
+  const justifF = document.getElementById('absJustifFilter')?.value || '';
+
+  let data = state.absences.filter(a => {
+    const ms = !search || a.eleveName.toLowerCase().includes(search);
+    const mt = !typeF || a.type === typeF;
+    const mj = !justifF || a.justif === justifF;
+    return ms && mt && mj;
+  }).sort((a, b) => b.date.localeCompare(a.date));
+
+  // Stats
+  const absTotal = state.absences.filter(a => a.type === 'absence').length;
+  const retTotal = state.absences.filter(a => a.type === 'retard').length;
+  const njTotal = state.absences.filter(a => a.justif === 'non_justifie').length;
+  document.getElementById('absStatsGrid').innerHTML = [
+    { n: absTotal, l: 'Absences', c: '#ef4444' },
+    { n: retTotal, l: 'Retards', c: '#f59e0b' },
+    { n: njTotal, l: 'Non justifiés', c: '#8b5cf6' },
+    { n: state.absences.length - njTotal, l: 'Justifiés', c: '#10b981' },
+  ].map(s => `<div class="stat-card"><div class="stat-num" style="background:linear-gradient(90deg,${s.c},${s.c}99);-webkit-background-clip:text">${s.n}</div><div class="stat-label">${s.l}</div></div>`).join('');
+
+  const tbody = document.getElementById('absBody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:30px">Aucune absence enregistrée</td></tr>`; return; }
+
+  tbody.innerHTML = data.map(a => `
+    <tr>
+      <td style="font-weight:600">${a.eleveName}</td>
+      <td><span class="badge" style="${a.type==='retard'?'background:#f59e0b20;color:#f59e0b;border:1px solid #f59e0b40':'background:#ef444420;color:#ef4444;border:1px solid #ef444440'}">${a.type==='retard'?'⏱ Retard':'📵 Absence'}</span></td>
+      <td style="font-size:13px;color:var(--text2)">${a.date ? new Date(a.date).toLocaleDateString('fr-FR') : '—'}</td>
+      <td style="color:var(--text2);font-size:13px">${a.duree || '—'}${a.motif ? ' — '+a.motif : ''}</td>
+      <td><span class="badge" style="${a.justif==='justifie'?'background:#10b98120;color:#10b981;border:1px solid #10b98130':'background:#ef444420;color:#ef4444;border:1px solid #ef444440'}" style="cursor:pointer" onclick="toggleJustif('${a.id}')">${a.justif==='justifie'?'✅ Justifié':'❌ Non justifié'}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="toggleJustif('${a.id}')">${a.justif==='justifie'?'Annuler justif.':'Justifier'}</button>
+        <button class="btn btn-red btn-sm" onclick="deleteAbsence('${a.id}')">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ===================================================
+// ========== CAHIER DE TEXTE ==========
+// ===================================================
+const CDT_TYPE_STYLE = {
+  cours: { bg:'#3b82f620', color:'#3b82f6', label:'📘 Cours' },
+  devoir: { bg:'#f59e0b20', color:'#f59e0b', label:'📝 Devoir' },
+  evaluation: { bg:'#ef444420', color:'#ef4444', label:'📊 Évaluation' },
+  sortie: { bg:'#10b98120', color:'#10b981', label:'🚌 Sortie scolaire' },
+};
+
+function initCDT() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('cdtDate').value = today;
+  document.getElementById('cdtDateLimite').value = today;
+  renderCDT();
+  refreshCdtFilters();
+}
+
+function refreshCdtFilters() {
+  const matieres = [...new Set(state.cdt.map(e => e.matiere))].sort();
+  const classes = [...new Set(state.cdt.map(e => e.classe))].sort();
+  const mSel = document.getElementById('cdtMatiereFilter');
+  const cSel = document.getElementById('cdtClasseFilter');
+  const curM = mSel.value, curC = cSel.value;
+  mSel.innerHTML = '<option value="">Toutes les matières</option>' + matieres.map(m => `<option value="${m}">${m}</option>`).join('');
+  cSel.innerHTML = '<option value="">Toutes les classes</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join('');
+  if (curM) mSel.value = curM;
+  if (curC) cSel.value = curC;
+}
+
+function saveCDT() {
+  const classe = document.getElementById('cdtClasse').value.trim();
+  const matiere = document.getElementById('cdtMatiere').value.trim();
+  const date = document.getElementById('cdtDate').value;
+  const type = document.getElementById('cdtType').value;
+  const titre = document.getElementById('cdtTitre').value.trim();
+  const contenu = document.getElementById('cdtContenu').value.trim();
+  const dateLimite = document.getElementById('cdtDateLimite').value;
+
+  if (!classe || !matiere || !titre) { showToast('Classe, matière et titre obligatoires', 'error'); return; }
+
+  const author = state.currentUser?.fullName || state.currentUser?.id || 'Inconnu';
+  state.cdt.unshift({ id: Date.now().toString(), classe, matiere, date, type, titre, contenu, dateLimite, author, createdAt: new Date().toISOString() });
+  saveState();
+  refreshCdtFilters();
+  renderCDT();
+  closeModal('modalAddCDT');
+  document.getElementById('cdtTitre').value = '';
+  document.getElementById('cdtContenu').value = '';
+  addActivity(`📖 Cahier de texte : ${titre} (${classe} – ${matiere})`);
+  showToast('Entrée ajoutée', 'success');
+}
+
+function deleteCDT(id) {
+  state.cdt = state.cdt.filter(e => e.id !== id);
+  saveState();
+  refreshCdtFilters();
+  renderCDT();
+  showToast('Entrée supprimée', 'success');
+}
+
+function renderCDT() {
+  const mF = document.getElementById('cdtMatiereFilter')?.value || '';
+  const cF = document.getElementById('cdtClasseFilter')?.value || '';
+  const tF = document.getElementById('cdtTypeFilter')?.value || '';
+
+  let data = state.cdt.filter(e => {
+    return (!mF || e.matiere === mF) && (!cF || e.classe === cF) && (!tF || e.type === tF);
+  });
+
+  const container = document.getElementById('cdtList');
+  if (!data.length) {
+    container.innerHTML = `<div class="card"><div class="empty"><div class="empty-icon">📖</div><div class="empty-title">Aucune entrée</div><div>Ajoutez une entrée au cahier de texte.</div></div></div>`;
+    return;
+  }
+
+  container.innerHTML = data.map(e => {
+    const style = CDT_TYPE_STYLE[e.type] || CDT_TYPE_STYLE.cours;
+    const dateStr = e.date ? new Date(e.date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}) : '';
+    return `
+    <div class="card" style="margin-bottom:12px;border-left:3px solid ${style.color}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+            <span class="badge" style="background:${style.bg};color:${style.color};border:1px solid ${style.color}40">${style.label}</span>
+            <span class="badge badge-prof">${e.classe}</span>
+            <span style="font-size:12px;color:var(--text3)">${e.matiere}</span>
+          </div>
+          <div style="font-size:15px;font-weight:700;margin-bottom:4px">${e.titre}</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:8px">📅 ${dateStr} · par ${e.author}</div>
+          ${e.contenu ? `<div style="font-size:13px;color:var(--text2);line-height:1.6;background:var(--surface2);padding:10px 12px;border-radius:8px;white-space:pre-wrap">${e.contenu}</div>` : ''}
+          ${e.dateLimite && e.type !== 'cours' ? `<div style="margin-top:8px;font-size:12px;color:#f59e0b">⏰ Pour le : ${new Date(e.dateLimite).toLocaleDateString('fr-FR')}</div>` : ''}
+        </div>
+        <button class="btn btn-red btn-sm" onclick="deleteCDT('${e.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===================================================
+// ========== MESSAGERIE ==========
+// ===================================================
+function initMessagerie() {
+  refreshMsgDestSelect();
+  renderMsgList();
+}
+
+function refreshMsgDestSelect() {
+  const sel = document.getElementById('msgDest');
+  const all = state.accounts.filter(a => a.id !== state.currentUser?.id);
+  sel.innerHTML = '<option value="">-- Sélectionner le destinataire --</option>' + all.map(a => `<option value="${a.id}">${a.fullName} (${getCatLabel(a.role)})</option>`).join('');
+}
+
+function sendMessage() {
+  const destId = document.getElementById('msgDest').value;
+  const objet = document.getElementById('msgObjet').value.trim();
+  const corps = document.getElementById('msgCorps').value.trim();
+
+  if (!destId || !objet || !corps) { showToast('Remplissez tous les champs', 'error'); return; }
+
+  const dest = state.accounts.find(a => a.id === destId);
+  const from = state.currentUser;
+  const msg = {
+    id: Date.now().toString(),
+    fromId: from.id,
+    fromName: from.fullName || from.id,
+    toId: destId,
+    toName: dest?.fullName || destId,
+    objet, corps,
+    date: new Date().toISOString(),
+    lu: false,
+  };
+  state.messages.push(msg);
+  saveState();
+  renderMsgList();
+  closeModal('modalNewMsg');
+  document.getElementById('msgObjet').value = '';
+  document.getElementById('msgCorps').value = '';
+  addActivity(`✉️ Message envoyé à ${dest?.fullName || destId} : "${objet}"`);
+  showToast(`Message envoyé à ${dest?.fullName || destId}`, 'success');
+}
+
+function renderMsgList() {
+  const userId = state.currentUser?.id;
+  const isAdmin = state.currentUser?.role === 'admin';
+  // Show messages involving current user
+  const myMsgs = state.messages.filter(m => isAdmin || m.fromId === userId || m.toId === userId)
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  const list = document.getElementById('msgList');
+  if (!myMsgs.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">Aucun message</div>`;
+    return;
+  }
+  list.innerHTML = myMsgs.map(m => {
+    const isFrom = m.fromId === userId || (isAdmin && m.fromId === 'MaxPommmier');
+    return `
+    <div onclick="readMsg('${m.id}')" style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;${!m.lu && m.toId === userId ? 'background:var(--surface2)' : ''}" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="font-size:13px;font-weight:${!m.lu && m.toId === userId ? '700' : '500'};color:${!m.lu && m.toId === userId ? 'var(--text)' : 'var(--text2)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${m.objet}</div>
+        ${!m.lu && m.toId === userId ? '<span style="width:8px;height:8px;background:var(--accent);border-radius:50%;flex-shrink:0"></span>' : ''}
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">${isFrom ? '→ ' + m.toName : '← ' + m.fromName} · ${new Date(m.date).toLocaleDateString('fr-FR')}</div>
+    </div>`;
+  }).join('');
+}
+
+function readMsg(id) {
+  const m = state.messages.find(x => x.id === id);
+  if (!m) return;
+  if (m.toId === state.currentUser?.id) { m.lu = true; saveState(); renderMsgList(); }
+
+  document.getElementById('msgDetail').innerHTML = `
+    <div style="height:100%">
+      <div style="padding:0 0 16px;border-bottom:1px solid var(--border);margin-bottom:16px">
+        <div style="font-size:17px;font-weight:700;margin-bottom:8px">${m.objet}</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--text3)">De : <span style="color:var(--text2);font-weight:600">${m.fromName}</span></div>
+          <div style="font-size:12px;color:var(--text3)">À : <span style="color:var(--text2);font-weight:600">${m.toName}</span></div>
+          <div style="font-size:12px;color:var(--text3)">${new Date(m.date).toLocaleString('fr-FR')}</div>
+        </div>
+      </div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-wrap">${m.corps}</div>
+      <div style="margin-top:20px;display:flex;gap:8px">
+        <button class="btn btn-blue btn-sm" onclick="repondreMsg('${m.id}')">↩️ Répondre</button>
+        <button class="btn btn-red btn-sm" onclick="deleteMsg('${m.id}')">🗑 Supprimer</button>
+      </div>
+    </div>`;
+}
+
+function repondreMsg(id) {
+  const m = state.messages.find(x => x.id === id);
+  if (!m) return;
+  const destId = m.fromId === state.currentUser?.id ? m.toId : m.fromId;
+  const destName = m.fromId === state.currentUser?.id ? m.toName : m.fromName;
+  document.getElementById('msgDest').value = destId;
+  document.getElementById('msgObjet').value = 'RE: ' + m.objet;
+  openModal('modalNewMsg');
+}
+
+function deleteMsg(id) {
+  state.messages = state.messages.filter(m => m.id !== id);
+  saveState();
+  renderMsgList();
+  document.getElementById('msgDetail').innerHTML = `<div style="text-align:center;color:var(--text3)"><div style="font-size:36px;margin-bottom:10px">✉️</div><div>Sélectionnez un message pour le lire</div></div>`;
+  showToast('Message supprimé', 'success');
+}
+
+// ===================================================
+// ========== VIE SCOLAIRE ==========
+// ===================================================
+const VS_STYLES = {
+  felicitation: { bg:'#10b98120', color:'#10b981', label:'🌟 Félicitation' },
+  avertissement: { bg:'#f59e0b20', color:'#f59e0b', label:'⚠️ Avertissement' },
+  retenue: { bg:'#8b5cf620', color:'#a78bfa', label:'🔒 Retenue' },
+  exclusion: { bg:'#ef444420', color:'#ef4444', label:'🚫 Exclusion' },
+  conseil_discipline: { bg:'#06b6d420', color:'#22d3ee', label:'⚖️ Conseil discipline' },
+  punition: { bg:'#ec489920', color:'#f472b6', label:'📝 Punition' },
+};
+
+function initVS() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('vsDate').value = today;
+  refreshVsEleveSelect();
+  renderVS();
+}
+
+function refreshVsEleveSelect() {
+  const sel = document.getElementById('vsEleve');
+  const eleves = state.accounts.filter(a => a.role === 'eleve');
+  sel.innerHTML = '<option value="">-- Sélectionner un élève --</option>' + eleves.map(e => `<option value="${e.id}">${e.fullName}${e.classe?' ('+e.classe+')':''}</option>`).join('');
+}
+
+function saveVS() {
+  const eleveId = document.getElementById('vsEleve').value;
+  const type = document.getElementById('vsType').value;
+  const date = document.getElementById('vsDate').value;
+  const motif = document.getElementById('vsMotif').value.trim();
+
+  if (!eleveId || !motif) { showToast('Élève et motif obligatoires', 'error'); return; }
+
+  const eleve = state.accounts.find(a => a.id === eleveId);
+  const author = state.currentUser?.fullName || state.currentUser?.id;
+  state.vs.push({ id: Date.now().toString(), eleveId, eleveName: eleve?.fullName || eleveId, type, date, motif, author });
+  saveState();
+  renderVS();
+  closeModal('modalAddVS');
+  document.getElementById('vsMotif').value = '';
+  addActivity(`🏫 Vie scolaire : ${VS_STYLES[type]?.label || type} pour ${eleve?.fullName}`);
+  showToast('Événement enregistré', 'success');
+}
+
+function deleteVS(id) {
+  state.vs = state.vs.filter(v => v.id !== id);
+  saveState();
+  renderVS();
+  showToast('Événement supprimé', 'success');
+}
+
+function renderVS() {
+  const search = (document.getElementById('vsSearch')?.value || '').toLowerCase();
+  const typeF = document.getElementById('vsTypeFilter')?.value || '';
+
+  let data = state.vs.filter(v => {
+    return (!search || v.eleveName.toLowerCase().includes(search)) && (!typeF || v.type === typeF);
+  }).sort((a, b) => b.date.localeCompare(a.date));
+
+  // Stats
+  const counts = {};
+  Object.keys(VS_STYLES).forEach(k => counts[k] = state.vs.filter(v => v.type === k).length);
+  document.getElementById('vsStatsGrid').innerHTML = Object.entries(VS_STYLES).map(([k, s]) => `
+    <div class="stat-card"><div class="stat-num" style="background:linear-gradient(90deg,${s.color},${s.color}99);-webkit-background-clip:text;font-size:26px">${counts[k]}</div><div class="stat-label" style="font-size:11px">${s.label}</div></div>
+  `).join('');
+
+  const tbody = document.getElementById('vsBody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:30px">Aucun événement enregistré</td></tr>`; return; }
+
+  tbody.innerHTML = data.map(v => {
+    const s = VS_STYLES[v.type] || {};
+    return `<tr>
+      <td style="font-weight:600">${v.eleveName}</td>
+      <td><span class="badge" style="background:${s.bg};color:${s.color};border:1px solid ${s.color}40">${s.label || v.type}</span></td>
+      <td style="font-size:13px;color:var(--text2)">${v.date ? new Date(v.date).toLocaleDateString('fr-FR') : '—'}</td>
+      <td style="color:var(--text2);font-size:13px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${v.motif}">${v.motif}</td>
+      <td style="font-size:12px;color:var(--text3)">${v.author}</td>
+      <td><button class="btn btn-red btn-sm" onclick="deleteVS('${v.id}')">🗑</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ========== INIT ==========
+if (!state.accounts.find(a => a.id === 'MaxPommmier')) {
+  // admin not in regular accounts
+}
+</script>
+</body>
+</html>
